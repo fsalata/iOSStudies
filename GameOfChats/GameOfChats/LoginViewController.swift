@@ -27,7 +27,7 @@ class LoginViewController: UIViewController {
         button.tintColor = UIColor.white
         button.setTitle("Register", for: UIControlState.normal)
         
-        button.addTarget(self, action: #selector(handleRegister), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleLoginRegister), for: .touchUpInside)
         
         return button
     }()
@@ -186,6 +186,31 @@ class LoginViewController: UIViewController {
         loginRegisterButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
+    func handleLoginRegister() {
+        if loginRegisterSegmentedControl.selectedSegmentIndex == 0 {
+            handleLogin()
+        }
+        else {
+            handleRegister()
+        }
+    }
+    
+    func handleLogin() {
+        guard let email = emailTextField.text, let password = passwordTextField.text else {
+            print ("Invalid form")
+            return
+        }
+        
+        Auth.auth().signIn(withEmail: email, password: password) { (user, error) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
+    
     func handleRegister() {
         guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else {
             print ("Invalid form")
@@ -211,7 +236,7 @@ class LoginViewController: UIViewController {
                     return
                 }
                 
-                print("user saved to firebase db")
+                self.dismiss(animated: true, completion: nil)
                 
             })
             
