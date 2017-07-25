@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class LoginViewController: UIViewController {
     
@@ -19,12 +20,15 @@ class LoginViewController: UIViewController {
         return view
     }()
     
-    let loginRegisterButton: UIButton = {
-        let button = UIButton(type: UIButtonType.system)
+    var loginRegisterButton: UIButton = {
+        var button = UIButton(type: UIButtonType.system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = UIColor(r: 80, g: 101, b: 161)
         button.tintColor = UIColor.white
         button.setTitle("Login", for: UIControlState.normal)
+        
+        button.addTarget(self, action: #selector(handleRegister), for: .touchUpInside)
+        
         return button
     }()
     
@@ -46,6 +50,8 @@ class LoginViewController: UIViewController {
         let textfield = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
         textfield.placeholder = "Email"
+        textfield.keyboardType = UIKeyboardType.emailAddress
+        textfield.autocapitalizationType = UITextAutocapitalizationType.none
         return textfield
     }()
     
@@ -151,6 +157,38 @@ class LoginViewController: UIViewController {
         loginRegisterButton.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 12).isActive = true
         loginRegisterButton.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
         loginRegisterButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+    
+    func handleRegister() {
+        guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else {
+            print ("Invalid form")
+            return
+        }
+        
+        Auth.auth().createUser(withEmail: email, password: password) { (user: User?, error) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            guard let uid = user?.uid else {
+                return
+            }
+            
+            let rf = Database.database().reference(fromURL: "https://gameofchats-3671e.firebaseio.com/")
+            let usersReference = rf.child("users").child(uid)
+            let values = ["name": name, "email": email]
+            usersReference.updateChildValues(values, withCompletionBlock: { (error, dbReference) in
+                if (error != nil) {
+                    print (error!)
+                    return
+                }
+                
+                print("user saved to firebase db")
+                
+            })
+            
+        }
     }
     
     
