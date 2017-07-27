@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Firebase
 
 class LoginViewController: UIViewController {
     
@@ -78,11 +77,15 @@ class LoginViewController: UIViewController {
         return view
     }()
     
-    let profileImageView: UIImageView = {
+    lazy var profileImageView: UIImageView = {
         let imageview = UIImageView()
         imageview.translatesAutoresizingMaskIntoConstraints = false
         imageview.image = UIImage(named: "stark-wolf")
         imageview.contentMode = UIViewContentMode.scaleAspectFit
+        
+        imageview.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSelectProfileImage)))
+        imageview.isUserInteractionEnabled = true
+        
         return imageview
     }()
     
@@ -176,7 +179,6 @@ class LoginViewController: UIViewController {
         passwordSeparatorView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
         passwordSeparatorView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
         passwordSeparatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        
     }
     
     func setupLoginButton() {
@@ -184,63 +186,6 @@ class LoginViewController: UIViewController {
         loginRegisterButton.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 12).isActive = true
         loginRegisterButton.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
         loginRegisterButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-    }
-    
-    func handleLoginRegister() {
-        if loginRegisterSegmentedControl.selectedSegmentIndex == 0 {
-            handleLogin()
-        }
-        else {
-            handleRegister()
-        }
-    }
-    
-    func handleLogin() {
-        guard let email = emailTextField.text, let password = passwordTextField.text else {
-            print ("Invalid form")
-            return
-        }
-        
-        Auth.auth().signIn(withEmail: email, password: password) { (user, error) in
-            if error != nil {
-                print(error!)
-                return
-            }
-            
-            self.dismiss(animated: true, completion: nil)
-        }
-    }
-    
-    func handleRegister() {
-        guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else {
-            print ("Invalid form")
-            return
-        }
-        
-        Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
-            if error != nil {
-                print(error!)
-                return
-            }
-            
-            guard let uid = user?.uid else {
-                return
-            }
-            
-            let rf = Database.database().reference(fromURL: "https://gameofchats-3671e.firebaseio.com/")
-            let usersReference = rf.child("users").child(uid)
-            let values = ["name": name, "email": email]
-            usersReference.updateChildValues(values, withCompletionBlock: { (error, dbReference) in
-                if (error != nil) {
-                    print (error!)
-                    return
-                }
-                
-                self.dismiss(animated: true, completion: nil)
-                
-            })
-            
-        }
     }
     
     func handleLoginRegisterChange() {
@@ -267,15 +212,7 @@ class LoginViewController: UIViewController {
         }
     }
     
-    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
-    }
-
-}
-
-extension UIColor {
-    convenience init(r: CGFloat, g: CGFloat, b:CGFloat) {
-        self.init(red:r/255, green: g/255, blue: b/255, alpha: 1)
     }
 }
