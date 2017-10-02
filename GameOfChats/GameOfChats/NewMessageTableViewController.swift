@@ -49,13 +49,21 @@ class NewMessageTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath) as! UserCell
         
         let user = users[indexPath.row]
         cell.textLabel?.text = user.name
         cell.detailTextLabel?.text = user.email
         
+        if let profileImageUrl = user.profileImageUrl {
+            cell.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
+        }
+        
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 72
     }
     
     func handleCancel() {
@@ -65,8 +73,33 @@ class NewMessageTableViewController: UITableViewController {
 }
 
 class UserCell: UITableViewCell {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        self.textLabel?.frame = CGRect(x: 72, y: self.textLabel!.frame.origin.y - 2, width: self.textLabel!.frame.width, height: self.textLabel!.frame.height)
+        self.detailTextLabel?.frame = CGRect(x: 72, y: self.detailTextLabel!.frame.origin.y + 2, width: self.detailTextLabel!.frame.width, height: self.detailTextLabel!.frame.height)
+    }
+    
+    let profileImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.cornerRadius = 28
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        
+        return imageView
+    }()
+    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
+        
+        self.addSubview(profileImageView)
+        
+        // profileImageView Constraints
+        profileImageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
+        profileImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        profileImageView.widthAnchor.constraint(equalToConstant: 56).isActive = true
+        profileImageView.heightAnchor.constraint(equalToConstant: 56).isActive = true
     }
     
     required init?(coder aDecoder: NSCoder) {
