@@ -83,7 +83,7 @@ extension CircularTransition: UIViewControllerAnimatedTransitioning {
                 circle.layer.cornerRadius = circle.frame.width / 2
                 circle.center = startingPoint
                 
-                UIView.animate(withDuration: duration, delay: 0.0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: UIViewAnimationOptions.curveEaseInOut, animations: {
+                UIView.animate(withDuration: duration, delay: 0.0, options: UIViewAnimationOptions.curveEaseInOut, animations: {
                     self.circle.transform = CGAffineTransform(scaleX: 0.001, y: 0.001)
                     returningView.transform = CGAffineTransform(scaleX: 0.001, y: 0.001)
                     returningView.center = self.startingPoint
