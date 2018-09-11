@@ -20,7 +20,7 @@ class CircularTransition: NSObject {
     
     var circleColor = UIColor.white
     
-    var duration = 0.3
+    var duration = 0.5
     
     enum CircularTransitionMode:Int {
         case present, dismiss, pop
